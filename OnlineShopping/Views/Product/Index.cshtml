@@ -1,0 +1,129 @@
+﻿@model OnlineShopping.ViewModels.ProductListViewModel
+@{
+    ViewData["Title"] = "Products";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h4>Products</h4>
+    <a asp-controller="Cart" asp-action="Index" class="btn btn-dark btn-sm">
+        View Cart
+        @if (Model.CartCount > 0)
+        {
+            <span class="badge bg-danger">@Model.CartCount</span>
+        }
+    </a>
+</div>
+
+<div class="alert alert-info py-2 mb-3">
+    <small>
+        Add products worth <strong>₹5,000 or more</strong>
+        to get an extra <strong>10% off</strong> your total!
+    </small>
+</div>
+
+@if (!Model.Products.Any())
+{
+    <p class="text-muted">No products found.</p>
+}
+else
+{
+    <div class="row row-cols-2 row-cols-md-4 g-3">
+        @foreach (var product in Model.Products)
+        {
+            var imageUrl = product.Category switch
+            {
+                "Electronics" => "https://images.unsplash.com/photo-1498049794561-7780e7231661?w=300&h=200&fit=crop",
+                "Wearables" => "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=300&h=200&fit=crop",
+                "Peripherals" => "https://images.unsplash.com/photo-1587829741301-dc798b83add3?w=300&h=200&fit=crop",
+                _ => "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=300&h=200&fit=crop"
+            };
+            <div class="col">
+                <div class="card h-100 border position-relative">
+
+                    @if (product.DiscountPercentage > 0)
+                    {
+                        <span class="badge bg-danger position-absolute top-0 start-0 m-2"
+                              style="z-index:1">
+                            @product.DiscountPercentage% off
+                        </span>
+                    }
+
+                    <div style="height:160px; overflow:hidden;">
+                        <img src="@imageUrl"
+                             alt="@product.ProductName"
+                             class="w-100 h-100"
+                             style="object-fit:cover;" />
+                    </div>
+
+                    <div class="card-body p-2">
+
+                        <p class="fw-semibold mb-1"
+                           style="font-size:13px">
+                            @product.ProductName
+                        </p>
+
+                        <p class="text-muted mb-2"
+                           style="font-size:11px;
+                                                          display:-webkit-box;
+                                                          -webkit-line-clamp:2;
+                                                          -webkit-box-orient:vertical;
+                                                          overflow:hidden;">
+                            @product.Description
+                        </p>
+
+                        @if (product.DiscountPercentage > 0)
+                        {
+                            <p class="mb-0">
+                                <span class="fw-bold text-dark">
+                                    ₹@product.DiscountedPrice.ToString("N2")
+                                </span>
+                            </p>
+                            <p class="mb-1">
+                                <small class="text-decoration-line-through text-muted">
+                                    ₹@product.Price.ToString("N2")
+                                </small>
+                                <small class="text-danger ms-1">
+                                    Limited time deal
+                                </small>
+                            </p>
+                        }
+                        else
+                        {
+                            <p class="fw-bold mb-1">
+                                ₹@product.Price.ToString("N2")
+                            </p>
+                        }
+
+                        @if (product.StockQuantity <= 0)
+                        {
+                            <small class="text-danger">Out of Stock</small>
+                        }
+                        else
+                        {
+                            <small class="text-success">In Stock</small>
+                        }
+
+                    </div>
+
+                    <div class="card-footer bg-white border-top-0 p-2">
+                        <form asp-controller="Cart"
+                              asp-action="AddToCart"
+                              method="post">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="productId"
+                                   value="@product.ProductId" />
+                            <input type="hidden" name="returnUrl"
+                                   value="@Context.Request.Path@Context.Request.QueryString" />
+                            <button type="submit"
+                                    class="btn btn-dark btn-sm w-100"
+                                    @(product.StockQuantity <= 0 ? "disabled" : "")>
+                                Add to Cart
+                            </button>
+                        </form>
+                    </div>
+
+                </div>
+            </div>
+        }
+    </div>
+}

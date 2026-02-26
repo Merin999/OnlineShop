@@ -1,0 +1,111 @@
+﻿@model OnlineShopping.Models.PurchaseSummary
+@{
+    ViewData["Title"] = "Order Summary";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-7">
+
+        <h4 class="mb-4">Order Summary</h4>
+
+        <div class="card mb-3">
+            <div class="card-header bg-dark text-white">
+                Items (@Model.Items.Count)
+            </div>
+            <div class="card-body p-0">
+                <table class="table table-sm mb-0">
+                    <thead class="table-secondary">
+                        <tr>
+                            <th>Product</th>
+                            <th class="text-center">Qty</th>
+                            <th class="text-center">Unit Price</th>
+                            <th class="text-end">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.Items)
+                        {
+                            <tr>
+                                <td>
+                                    @item.ProductName
+                                    @if (item.DiscountPercentage > 0)
+                                    {
+                                        <br />
+                                        <small class="text-danger">
+                                            @item.DiscountPercentage% off
+                                        </small>
+                                    }
+                                </td>
+                                <td class="text-center">@item.Quantity</td>
+                                <td class="text-center">
+                                    ₹@item.UnitPrice.ToString("N2")
+                                </td>
+                                <td class="text-end">
+                                    ₹@item.LineTotal.ToString("N2")
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                Price Details
+            </div>
+            <div class="card-body">
+                <table class="table table-sm">
+                    <tr>
+                        <td>Original Total</td>
+                        <td class="text-end text-decoration-line-through text-muted">
+                            ₹@Model.OriginalTotal.ToString("N2")
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Sub Total</td>
+                        <td class="text-end">
+                            ₹@Model.SubTotal.ToString("N2")
+                        </td>
+                    </tr>
+                    @if (Model.CartDiscountApplied)
+                    {
+                        <tr class="text-success">
+                            <td>Cart Discount (10%)</td>
+                            <td class="text-end">
+                                -₹@Model.DiscountAmount.ToString("N2")
+                            </td>
+                        </tr>
+                    }
+                    <tr class="fw-bold border-top">
+                        <td>Final Amount</td>
+                        <td class="text-end">
+                            ₹@Model.FinalTotal.ToString("N2")
+                        </td>
+                    </tr>
+                </table>
+
+                @if (Model.TotalSaving > 0)
+                {
+                    <div class="alert alert-success py-2 text-center">
+                        You saved <strong>₹@Model.TotalSaving.ToString("N2")</strong>
+                        on this order!
+                    </div>
+                }
+            </div>
+        </div>
+
+        <div class="d-flex gap-2">
+            <a asp-controller="Cart" asp-action="Index"
+               class="btn btn-outline-secondary flex-grow-1">
+                Edit Cart
+            </a>
+            <form asp-action="PlaceOrder" method="post" class="flex-grow-1">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="btn btn-success w-100">
+                    Place Order
+                </button>
+            </form>
+        </div>
+    </div>
+</div>

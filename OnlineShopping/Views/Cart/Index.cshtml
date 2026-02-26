@@ -1,0 +1,184 @@
+﻿@model OnlineShopping.ViewModels.CartViewModel
+@{
+    ViewData["Title"] = "Cart";
+    var summary = Model.Summary;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h4>Shopping Cart</h4>
+    <a asp-controller="Product" asp-action="Index"
+       class="btn btn-outline-secondary btn-sm">
+        Continue Shopping
+    </a>
+</div>
+
+@if (!summary.Items.Any())
+{
+    <div class="text-center py-4">
+        <p class="text-muted">Your cart is empty.</p>
+        <a asp-controller="Product" asp-action="Index"
+           class="btn btn-dark btn-sm">
+            Browse Products
+        </a>
+    </div>
+}
+else
+{
+    <div class="row">
+
+        <div class="col-md-8">
+
+            @if (!summary.CartDiscountApplied)
+            {
+                <div class="alert alert-warning py-2">
+                    <small>@summary.DiscountMessage</small>
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-success py-2">
+                    <small>@summary.DiscountMessage</small>
+                </div>
+            }
+
+            <table class="table table-bordered">
+                <thead class="table-secondary">
+                    <tr>
+                        <th>Product</th>
+                        <th class="text-center">Unit Price</th>
+                        <th class="text-center">Qty</th>
+                        <th class="text-center">Total</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in summary.Items)
+                    {
+                        <tr>
+                            <td>
+                                @item.ProductName
+                                @if (item.DiscountPercentage > 0)
+                                {
+                                    <br />
+                                    <small class="text-danger">
+                                        @item.DiscountPercentage% off
+                                    </small>
+                                }
+                            </td>
+                            <td class="text-center">
+                                @if (item.DiscountPercentage > 0)
+                                {
+                                    <small class="text-decoration-line-through text-muted">
+                                        ₹@item.OriginalPrice.ToString("N2")
+                                    </small>
+                                    <br />
+                                }
+                                ₹@item.UnitPrice.ToString("N2")
+                            </td>
+                            <td class="text-center">
+                                <form asp-action="UpdateQuantity"
+                                      method="post"
+                                      class="d-flex align-items-center justify-content-center gap-2">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="cartItemId"
+                                           value="@item.Id" />
+                                    <button type="submit" name="quantity"
+                                            value="@(item.Quantity - 1)"
+                                            class="btn btn-sm btn-outline-secondary">
+                                        -
+                                    </button>
+                                    <span>@item.Quantity</span>
+                                    <button type="submit" name="quantity"
+                                            value="@(item.Quantity + 1)"
+                                            class="btn btn-sm btn-outline-secondary">
+                                        +
+                                    </button>
+                                </form>
+                            </td>
+                            <td class="text-center">
+                                ₹@item.LineTotal.ToString("N2")
+                            </td>
+                            <td class="text-center">
+                                <form asp-action="RemoveFromCart" method="post">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="cartItemId"
+                                           value="@item.Id" />
+                                    <button type="submit"
+                                            class="btn btn-sm btn-outline-danger"
+                                            onclick="return confirm('Remove item?')">
+                                        Remove
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+
+            <form asp-action="ClearCart" method="post" class="text-end">
+                @Html.AntiForgeryToken()
+                <button type="submit"
+                        class="btn btn-outline-danger btn-sm"
+                        onclick="return confirm('Clear all items?')">
+                    Clear Cart
+                </button>
+            </form>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header bg-dark text-white">
+                    Order Summary
+                </div>
+                <div class="card-body">
+                    <table class="table table-sm mb-0">
+                        <tr>
+                            <td>Original Total</td>
+                            <td class="text-end text-decoration-line-through text-muted">
+                                ₹@summary.OriginalTotal.ToString("N2")
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Sub Total</td>
+                            <td class="text-end">
+                                ₹@summary.SubTotal.ToString("N2")
+                            </td>
+                        </tr>
+                        @if (summary.CartDiscountApplied)
+                        {
+                            <tr class="text-success">
+                                <td>Cart Discount (10%)</td>
+                                <td class="text-end">
+                                    -₹@summary.DiscountAmount.ToString("N2")
+                                </td>
+                            </tr>
+                        }
+                        <tr class="fw-bold">
+                            <td>Total</td>
+                            <td class="text-end">
+                                ₹@summary.FinalTotal.ToString("N2")
+                            </td>
+                        </tr>
+                    </table>
+
+                    @if (summary.TotalSaving > 0)
+                    {
+                        <div class="alert alert-success py-1 mt-2 text-center">
+                            <small>
+                                You save
+                                <strong>
+                                    ₹@summary.TotalSaving.ToString("N2")
+                                </strong>!
+                            </small>
+                        </div>
+                    }
+
+                    <a asp-action="Summary"
+                       class="btn btn-dark w-100 mt-2 btn-sm">
+                        Proceed to Summary
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    }

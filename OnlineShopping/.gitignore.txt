@@ -1,0 +1,20 @@
+# Visual Studio files
+.vs/
+bin/
+obj/
+*.user
+*.suo
+
+# User specific files
+*.rsuser
+
+# Build results
+[Dd]ebug/
+[Rr]elease/
+
+# NuGet
+packages/
+*.nupkg
+
+# App settings with secrets
+appsettings.Development.json
