@@ -3,8 +3,7 @@ Online Shopping Application
 A web-based online shopping application built with ASP.NET Core MVC 
 and SQL Server as part of a technical assessment.
 
-Technology Stack 
-
+---Technology Stack---
 
 Framework - ASP.NET Core MVC (.NET 8) 
 
@@ -16,8 +15,7 @@ Frontend - Bootstrap 5, Razor Views
 
 Language - C# 
 
-Architecture
-
+---Architecture---
 
 This application follows a 3-Layer Architecture
 
